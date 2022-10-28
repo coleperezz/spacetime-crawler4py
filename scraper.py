@@ -39,7 +39,7 @@ def is_valid(url):
     parsed = urlparse(url)
     try:
         validSubDomain = re.match(
-            ".*(\.cs\.uci\.edu\/|\.informatics\.uci\.edu\/|\.stat\.uci\.edu\/|\.ics\.uci\.edu\/|).*|.*today\.uci\.edu\/department\/information_computer_sciences\/.*", url)
+            ".*(\.cs\.uci\.edu\/|\.informatics\.uci\.edu\/|\.stat\.uci\.edu\/|\.ics\.uci\.edu\/).*|.*today\.uci\.edu\/department\/information_computer_sciences\/.*", url)
 
         if not validSubDomain:
             return False
