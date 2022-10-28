@@ -27,22 +27,22 @@ def extract_next_links(url, resp):
     for link in soup.find_all("a", attrs={'href': re.compile("^http://|^https://")}):
         links.append(link.get('href'))
     #
-    print(links)
-    return list()
+    #print(links)
+    return links
 
 def is_valid(url):
     # Decide whether to crawl this url or not.
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
+    parsed = urlparse(url)
     try:
-        validAuthority = set(".cs.uci.edu/",".informatics.uci.edu",".stat.uci.edu")
-        parsed = urlparse(url)
+        validAuthority = set(["www.cs.uci.edu","www.informatics.uci.edu","www.stat.uci.edu"])
         print(parsed.netloc)
         print(parsed.path)
         if parsed.scheme not in set(["http", "https"]):
             return False
-        if not (parsed.netloc in validAuthority or (parsed.netloc == 'today.uci.edu'
-            and parsed.path == "/department/information_computer_sciences")):
+        if not (parsed.netloc in validAuthority or (parsed.netloc == 'www.today.uci.edu'
+            and parsed.path == "/department/information_computer_sciences/")):
                 return False
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
