@@ -38,11 +38,9 @@ def is_valid(url):
     url = urldefrag(url).url
     parsed = urlparse(url)
     try:
-        validAuthority = set(["www.cs.uci.edu","www.informatics.uci.edu","www.stat.uci.edu"])
-        if parsed.scheme not in set(["http", "https"]):
-            return False
-        if not (parsed.netloc in validAuthority or (parsed.netloc == 'www.today.uci.edu'
-            and parsed.path == "/department/information_computer_sciences/")):
+        validSubDomain = re.match("\.cs\.uci\.edu\/|\.informatics\.uci\.edu\/|\.stat\.uci\.edu\/|\.ics\.uci\.edu\/", url)
+        if not validSubDomain or (parsed.netloc == 'www.today.uci.edu'
+            and parsed.path == "/department/information_computer_sciences/"):
                 return False
         if url in seenURLS:
             return False
