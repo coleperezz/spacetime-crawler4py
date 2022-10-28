@@ -26,6 +26,7 @@ def extract_next_links(url, resp):
     for link in soup.find_all("a"):
         links.append(link.get('href'))
     #
+    print(links)
     return list()
 
 def is_valid(url):
