@@ -1,8 +1,12 @@
 import re
 from urllib.parse import urlparse, urldefrag
 from bs4 import BeautifulSoup
+from nltk.tokenize import RegexpTokenizer
 
+lenLongest = 0
+nameMaxLenURL = " "
 seenURLS = set()
+word_count = {}
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -24,6 +28,24 @@ def extract_next_links(url, resp):
 
     soup = BeautifulSoup(resp.raw_response.content, 'html5lib')
 
+    global lenLongest 
+    global nameMaxLenURL
+    global wordCount
+    #tokens = RegexpTokenizer(soup.getText())
+    tokenizer = RegexpTokenizer(r'\w+')
+    tokens = tokenizer.tokenize(soup.getText())
+    for word in tokens:
+        #filter out punctuation and stopwords
+        if word_count.__contains__(word):
+            word_count[word] = word_count.get(word) + 1
+        else:
+            word_count[word] = 1
+            print(word_count)
+
+    if len(tokens) > lenLongest:
+        lenLongest = len(tokens)
+        nameMaxLenURL = url
+
     links = []
     for link in soup.find_all("a", attrs={'href': re.compile("^http://|^https://")}):
         links.append(link.get('href'))
@@ -36,6 +58,7 @@ def is_valid(url):
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
     url = urldefrag(url).url
+    global seenURLS
     parsed = urlparse(url)
     try:
         validSubDomain = re.match(
