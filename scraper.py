@@ -2,6 +2,8 @@ import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
+seenURLS = set()
+
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
@@ -37,13 +39,14 @@ def is_valid(url):
     parsed = urlparse(url)
     try:
         validAuthority = set(["www.cs.uci.edu","www.informatics.uci.edu","www.stat.uci.edu"])
-        print(parsed.netloc)
-        print(parsed.path)
         if parsed.scheme not in set(["http", "https"]):
             return False
         if not (parsed.netloc in validAuthority or (parsed.netloc == 'www.today.uci.edu'
             and parsed.path == "/department/information_computer_sciences/")):
                 return False
+        if url in seenURLS:
+            return False
+        seenURLS.add(url)
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
