@@ -19,6 +19,12 @@ def extract_next_links(url, resp):
     if resp.status != 200:
         #handle error
         pass
+
+    soup = BeautifulSoup(resp.raw_response.content, 'html5lib')
+
+    links = []
+    for link in soup.find_all("a"):
+        links.append(link.get('href'))
     #
     return list()
 
