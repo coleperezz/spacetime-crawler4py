@@ -1,5 +1,5 @@
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urldefrag
 from bs4 import BeautifulSoup
 
 seenURLS = set()
@@ -19,9 +19,8 @@ def extract_next_links(url, resp):
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
 
-    if resp.status != 200:
-        #handle error
-        pass
+    if resp.status != 200 and resp.raw_response.content != None:
+        return list()
 
     soup = BeautifulSoup(resp.raw_response.content, 'html5lib')
 
@@ -36,6 +35,7 @@ def is_valid(url):
     # Decide whether to crawl this url or not.
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
+    url = urldefrag(url).url
     parsed = urlparse(url)
     try:
         validAuthority = set(["www.cs.uci.edu","www.informatics.uci.edu","www.stat.uci.edu"])
@@ -47,6 +47,7 @@ def is_valid(url):
         if url in seenURLS:
             return False
         seenURLS.add(url)
+        print(len(seenURLS))
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
