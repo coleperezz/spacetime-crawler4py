@@ -40,6 +40,10 @@ def is_valid(url):
     try:
         validSubDomain = re.match(
             ".*(\.cs\.uci\.edu\/|\.informatics\.uci\.edu\/|\.stat\.uci\.edu\/|\.ics\.uci\.edu\/|).*|.*today\.uci\.edu\/department\/information_computer_sciences\/.*", url)
+
+        if not validSubDomain:
+            return False
+
         # if not validSubDomain or (parsed.netloc == 'www.today.uci.edu'
         #     and parsed.path == "/department/information_computer_sciences/"):
         #         return False
