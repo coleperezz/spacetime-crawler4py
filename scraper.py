@@ -31,9 +31,9 @@ def extract_next_links(url, resp):
     global lenLongest 
     global nameMaxLenURL
     global wordCount
-    #tokens = RegexpTokenizer(soup.getText())
+
     tokenizer = RegexpTokenizer(r'\w+')
-    tokens = tokenizer.tokenize(soup.getText())
+    tokens = tokenizer.tokenize(soup.find('p').getText())
     for word in tokens:
         #filter out punctuation and stopwords
         if word_count.__contains__(word):
