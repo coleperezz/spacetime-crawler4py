@@ -33,7 +33,8 @@ def extract_next_links(url, resp):
     global wordCount
 
     tokenizer = RegexpTokenizer(r'\w+')
-    tokens = tokenizer.tokenize(soup.find('p').getText())
+    
+    tokens = tokenizer.tokenize(soup.get_text().lower())
     for word in tokens:
         #filter out punctuation and stopwords
         if word_count.__contains__(word):
