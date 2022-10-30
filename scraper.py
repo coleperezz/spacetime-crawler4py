@@ -22,18 +22,22 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
+    global lenLongest
+    global nameMaxLenURL
+    global wordCount
 
     if resp.status != 200 or resp.raw_response.content == None:
         return list()
 
     soup = BeautifulSoup(resp.raw_response.content, 'html5lib')
 
-    global lenLongest 
-    global nameMaxLenURL
-    global wordCount
+    #get rid of script and style content from the raw response
+    for tag in soup(["script", "style"]):
+        tag.extract()
 
     tokenizer = RegexpTokenizer(r'\w+')
-    
+
+    #NEED TO FILTER OUT STOPWORDS
     tokens = tokenizer.tokenize(soup.get_text().lower())
     for word in tokens:
         #filter out punctuation and stopwords
@@ -41,7 +45,7 @@ def extract_next_links(url, resp):
             word_count[word] = word_count.get(word) + 1
         else:
             word_count[word] = 1
-            print(word_count)
+            #print(word_count)
 
     if len(tokens) > lenLongest:
         lenLongest = len(tokens)
