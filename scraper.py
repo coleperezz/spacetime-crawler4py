@@ -7,6 +7,8 @@ lenLongest = 0
 nameMaxLenURL = " "
 seenURLS = set()
 word_count = {}
+stop_words = set(line.strip() for line in open('stopwords.txt'))
+
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -25,9 +27,20 @@ def extract_next_links(url, resp):
     global lenLongest
     global nameMaxLenURL
     global wordCount
+    global stop_words
 
     if resp.status != 200 or resp.raw_response.content == None:
         return list()
+    if re.match(
+            r".*\.(css|js|bmp|gif|jpe?g|ico|py|java|c"
+            + r"|png|tiff?|mid|mp2|mp3|mp4"
+            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
+            + r"|ps|eps|tex|ppt|pptx|ppsx|doc|docx|xls|xlsx|names"
+            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
+            + r"|epub|dll|cnf|tgz|sha1"
+            + r"|thmx|mso|arff|rtf|jar|csv"
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", resp.raw_response.url):
+            return list()
 
     soup = BeautifulSoup(resp.raw_response.content, 'html5lib')
 
@@ -35,17 +48,16 @@ def extract_next_links(url, resp):
     for tag in soup(["script", "style"]):
         tag.extract()
 
-    tokenizer = RegexpTokenizer(r'\w+')
+    tokenizer = RegexpTokenizer(r'\w{3,}')
 
-    #NEED TO FILTER OUT STOPWORDS
     tokens = tokenizer.tokenize(soup.get_text().lower())
     for word in tokens:
-        #filter out punctuation and stopwords
-        if word_count.__contains__(word):
-            word_count[word] = word_count.get(word) + 1
-        else:
-            word_count[word] = 1
-            #print(word_count)
+        #filters out stopwords
+        if word not in stop_words:
+            if word in word_count:
+                word_count[word] += 1
+            else:
+                word_count[word] = 1
 
     if len(tokens) > lenLongest:
         lenLongest = len(tokens)
@@ -72,15 +84,14 @@ def is_valid(url):
         if not validSubDomain:
             return False
 
-        # if not validSubDomain or (parsed.netloc == 'www.today.uci.edu'
-        #     and parsed.path == "/department/information_computer_sciences/"):
-        #         return False
         if url in seenURLS:
             return False
+
         seenURLS.add(url)
         print(len(seenURLS))
+
         return not re.match(
-            r".*\.(css|js|bmp|gif|jpe?g|ico"
+            r".*\.(css|js|bmp|gif|jpe?g|ico|py|java|c"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|ppsx|doc|docx|xls|xlsx|names"
