@@ -43,7 +43,6 @@ def extract_next_links(url, resp):
     tokens = tokenizer.tokenize(soup.get_text().lower())
 
     # Removes low information pages from scraper
-    # TODO: remove HTML words
     if len(tokens) < 100: return list()
 
     for word in tokens:
@@ -54,21 +53,14 @@ def extract_next_links(url, resp):
             else:
                 word_count[word] = 1
 
+    # TODO: Remove HTML words & stop words
     if len(tokens) > lenLongest:
         lenLongest = len(tokens)
         nameMaxLenURL = url
 
     links = []
-    #for link in soup.find_all("a", attrs={'href': re.compile("^http://|^https://")}):
-    #   links.append(link.get('href'))
-    for link in soup.find_all("a"):
-        # Adds for relative path and absolute path
-        nextUrl = link.get('href')
-        if nextUrl and nextUrl.startswith('/'):
-            nextUrl = urljoin(url, nextUrl)
-            links.append(nextUrl)
-        elif nextUrl and re.match("^http://|^https://", nextUrl):
-            links.append(nextUrl)
+    for link in soup.find_all("a", attrs={'href': re.compile("^http://|^https://")}):
+        links.append(link.get('href'))
 
     return links
 
