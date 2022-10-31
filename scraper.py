@@ -1,5 +1,5 @@
 import re
-from urllib.parse import urlparse, urldefrag
+from urllib.parse import urlparse, urldefrag,urljoin,urlunparse
 from bs4 import BeautifulSoup
 from nltk.tokenize import RegexpTokenizer
 
@@ -31,16 +31,6 @@ def extract_next_links(url, resp):
 
     if resp.status != 200 or resp.raw_response.content == None:
         return list()
-    if re.match(
-            r".*\.(css|js|bmp|gif|jpe?g|ico|py|java|c"
-            + r"|png|tiff?|mid|mp2|mp3|mp4"
-            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
-            + r"|ps|eps|tex|ppt|pptx|ppsx|doc|docx|xls|xlsx|names"
-            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
-            + r"|epub|dll|cnf|tgz|sha1"
-            + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", resp.raw_response.url):
-            return list()
 
     soup = BeautifulSoup(resp.raw_response.content, 'html5lib')
 
@@ -48,9 +38,14 @@ def extract_next_links(url, resp):
     for tag in soup(["script", "style"]):
         tag.extract()
 
-    tokenizer = RegexpTokenizer(r'\w{3,}')
+    tokenizer = RegexpTokenizer(r'[a-zA-Z]{3,}')
 
     tokens = tokenizer.tokenize(soup.get_text().lower())
+
+    # Removes low information pages from scraper
+    # TODO: remove HTML words
+    if len(tokens) < 100: return list()
+
     for word in tokens:
         #filters out stopwords
         if word not in stop_words:
@@ -64,10 +59,17 @@ def extract_next_links(url, resp):
         nameMaxLenURL = url
 
     links = []
-    for link in soup.find_all("a", attrs={'href': re.compile("^http://|^https://")}):
-        links.append(link.get('href'))
-    #
-    #print(links)
+    #for link in soup.find_all("a", attrs={'href': re.compile("^http://|^https://")}):
+    #   links.append(link.get('href'))
+    for link in soup.find_all("a"):
+        # Adds for relative path and absolute path
+        nextUrl = link.get('href')
+        if nextUrl and nextUrl.startswith('/'):
+            nextUrl = urljoin(url, nextUrl)
+            links.append(nextUrl)
+        elif nextUrl and re.match("^http://|^https://", nextUrl):
+            links.append(nextUrl)
+
     return links
 
 def is_valid(url):
