@@ -5,6 +5,7 @@ from utils.download import download
 from utils import get_logger
 import scraper
 import time
+from scraper import word_count, icsSubdomains
 
 
 class Worker(Thread):
@@ -31,3 +32,10 @@ class Worker(Thread):
                 self.frontier.add_url(scraped_url)
             self.frontier.mark_url_complete(tbd_url)
             time.sleep(self.config.time_delay)
+        with open('./report.txt', 'a') as f:
+            f.write("The 50 most common words are:\n")
+            for word,_ in sorted(word_count.items(), key=lambda x:x[1], reverse=True)[:50]:
+                f.write(f'{word}\n')
+            f.write("The subdomains found in the ics.uci.domain are:\n")
+            for subdomain, occ in sorted(icsSubdomains.items(), key=lambda x: x[0].strip().lower()):
+                f.write(f'{subdomain}.ics.uci.edu, {occ}\n')

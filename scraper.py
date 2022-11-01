@@ -3,11 +3,12 @@ from urllib.parse import urlparse, urldefrag,urljoin,urlunparse
 from bs4 import BeautifulSoup
 from nltk.tokenize import RegexpTokenizer
 
-lenLongest = 0
-nameMaxLenURL = " "
+# Need to Use a Tuple so it is saved across files
+longestPage = (0, "")
 seenURLS = set()
 word_count = {}
 stop_words = set(line.strip() for line in open('stopwords.txt'))
+icsSubdomains = {}
 
 
 def scraper(url, resp):
@@ -24,8 +25,7 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    global lenLongest
-    global nameMaxLenURL
+    global longestPage
     global wordCount
     global stop_words
 
@@ -53,10 +53,15 @@ def extract_next_links(url, resp):
             else:
                 word_count[word] = 1
 
-    # TODO: Remove HTML words & stop words
-    if len(tokens) > lenLongest:
-        lenLongest = len(tokens)
-        nameMaxLenURL = url
+    if len(tokens) > longestPage[0]:
+        longestPage = (len(tokens), url)
+        with open('report.txt','r') as f:
+            data = f.readlines()
+        data[1] = (f"The Longest Page is {longestPage[1]}\n")
+        data[2] = (f"The longest Page has {longestPage[0]} words\n")
+
+        with open('report.txt','w') as f:
+            f.writelines(data)
 
     links = []
     for link in soup.find_all("a", attrs={'href': re.compile("^http://|^https://")}):
@@ -70,6 +75,7 @@ def is_valid(url):
     # There are already some conditions that return False.
     url = urldefrag(url).url
     global seenURLS
+    global icsSubdomains
     parsed = urlparse(url)
     try:
         validSubDomain = re.match(
@@ -81,7 +87,22 @@ def is_valid(url):
         if url in seenURLS:
             return False
 
+        # Looks for the subdomains, ensures it is not www.ics.uci.edu
+        if re.match(".*(\.ics\.uci\.edu)(?<!www.ics.uci.edu)", parsed.netloc):
+            subdomain = parsed.netloc.split(".")[0]
+            if subdomain in icsSubdomains:
+                icsSubdomains[subdomain] += 1
+            else:
+                icsSubdomains[subdomain] = 1
+
         seenURLS.add(url)
+        # Writes the number of Unique URLS
+        with open('report.txt','r') as file:
+            data = file.readlines()
+        data[0] = f'The number of Unique URLS is: {len(seenURLS)}\n'
+        with open('report.txt','w') as file:
+            file.writelines(data)
+
         print(len(seenURLS))
 
         return not (re.match(
