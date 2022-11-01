@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from nltk.tokenize import RegexpTokenizer
 
 # Need to Use a Tuple so it is saved across files
-longestPage = (0, "")
+longestPage = (float('-inf'), "")
 seenURLS = set()
 word_count = {}
 stop_words = set(line.strip() for line in open('stopwords.txt'))
@@ -43,18 +43,21 @@ def extract_next_links(url, resp):
     tokens = tokenizer.tokenize(soup.get_text().lower())
 
     # Removes low information pages from scraper
-    if len(tokens) < 100: return list()
+    if len(tokens) < 100: 
+        return list()
 
+    pageWords = float('-inf') # Used to find page with most words minus stop words
     for word in tokens:
         #filters out stopwords
         if word not in stop_words:
+            pageWords += 1
             if word in word_count:
                 word_count[word] += 1
             else:
                 word_count[word] = 1
 
-    if len(tokens) > longestPage[0]:
-        longestPage = (len(tokens), url)
+    if pageWords > longestPage[0]:
+        longestPage = (pageWords, url)
         with open('report.txt','r') as f:
             data = f.readlines()
         data[1] = (f"The Longest Page is {longestPage[1]}\n")
