@@ -43,7 +43,7 @@ def extract_next_links(url, resp):
     tokens = tokenizer.tokenize(soup.get_text().lower())
 
     # Removes low information pages from scraper
-    if len(tokens) < 100: 
+    if len(tokens) < 100:
         return list()
 
     pageWords = float('-inf') # Used to find page with most words minus stop words
@@ -92,7 +92,7 @@ def is_valid(url):
 
         # Looks for the subdomains, ensures it is not www.ics.uci.edu
         if re.match(".*(\.ics\.uci\.edu)(?<!www.ics.uci.edu)", parsed.netloc):
-            subdomain = parsed.netloc.split(".")[0]
+            subdomain = parsed.netloc
             if subdomain in icsSubdomains:
                 icsSubdomains[subdomain] += 1
             else:
