@@ -46,7 +46,7 @@ def extract_next_links(url, resp):
     if len(tokens) < 100:
         return list()
 
-    pageWords = float('-inf') # Used to find page with most words minus stop words
+    pageWords = 0 # Used to find page with most words minus stop words
     for word in tokens:
         #filters out stopwords
         if word not in stop_words:

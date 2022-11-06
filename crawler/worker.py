@@ -38,4 +38,4 @@ class Worker(Thread):
                 f.write(f'{word}\n')
             f.write("The subdomains found in the ics.uci.domain are:\n")
             for subdomain, occ in sorted(icsSubdomains.items(), key=lambda x: x[0].strip().lower()):
-                f.write(f'{subdomain}.ics.uci.edu, {occ}\n')
+                f.write(f'{subdomain}, {occ}\n')
